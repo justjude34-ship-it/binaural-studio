@@ -1,2 +1,5 @@
 # Binaural Studio
-Control room for focus and calm.
+
+Locked hero: modern home, studio headphones, gold and teal dusk light.
+
+Open index.html in a browser. Headphones required.

@@ -1,1 +1,91 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Binaural Studio</title><style>body{margin:0;background:#07141c;color:#f3ead8;font-family:sans-serif;text-align:center;padding:24px}h1{color:#e8c36a;letter-spacing:.2em;font-weight:300}#hero{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;opacity:.4}</style></head><body><video id="hero" autoplay muted loop playsinline><source src="hero.mp4" type="video/mp4"></video><h1>BINAURAL STUDIO</h1><p>Headphones required. App files arriving next.</p></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#07141c"/>
+<title>Binaural Studio</title>
+<style>
+:root{--navy:#07141c;--teal:#2ec4b6;--gold:#d4af37;--gold-soft:#e8c36a;--cream:#f3ead8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--navy);color:var(--cream);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px 16px 40px;text-align:center;overflow-x:hidden}
+#hero{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-4;opacity:.45;pointer-events:none}
+.wash{position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 20% 0%,rgba(46,196,182,.2),transparent 50%),radial-gradient(ellipse at 90% 80%,rgba(139,107,184,.2),transparent 45%),linear-gradient(180deg,rgba(7,20,28,.15),rgba(7,20,28,.82))}
+h1{font-weight:300;letter-spacing:.22em;font-size:1.15rem;margin:10px 0 18px;color:var(--gold-soft)}
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;max-width:640px}
+button{background:rgba(7,20,28,.55);border:1px solid rgba(232,195,106,.28);color:var(--cream);padding:10px 14px;border-radius:28px;font-size:.86rem}
+button.on{background:linear-gradient(135deg,rgba(212,175,55,.9),rgba(46,196,182,.55));border-color:var(--gold-soft);color:#0b1418;font-weight:600}
+#play{width:76px;height:76px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f0d78a,#d4af37 45%,#1a7f78);color:#0b1418;font-size:1.05rem;font-weight:600;margin:10px 0 16px;box-shadow:0 0 24px rgba(212,175,55,.35)}
+#play.on{background:radial-gradient(circle at 35% 30%,#8b6bb8,#1a7f78);color:var(--cream)}
+.vol{width:min(320px,92vw);text-align:left;font-size:.74rem;color:rgba(243,234,216,.75);margin:7px 0}
+input[type=range]{width:100%;accent-color:#d4af37}
+#status,#timer{opacity:.8;margin-top:10px;font-size:.86rem}
+.note{opacity:.45;font-size:.72rem;max-width:360px;margin-top:16px;line-height:1.5}
+.file-btn{border-style:dashed;border-color:rgba(46,196,182,.45);color:var(--teal)}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<video id="hero" autoplay muted loop playsinline>
+<source src="hero.mp4" type="video/mp4">
+</video>
+<div class="wash"></div>
+<video id="bgVideo" muted loop playsinline style="display:none"></video>
+<h1>BINAURAL STUDIO</h1>
+<div class="row" id="modes"></div>
+<div class="row">
+<button class="n on" data-s="none">None</button>
+<button class="n" data-s="ocean">Ocean</button>
+<button class="n" data-s="rain">Rain</button>
+<button class="n" data-s="storm">Rainstorm</button>
+</div>
+<div class="row">
+<button class="t on" data-m="0">Timer off</button>
+<button class="t" data-m="15">15 min</button>
+<button class="t" data-m="30">30 min</button>
+<button class="t" data-m="45">45 min</button>
+<button class="t" data-m="60">60 min</button>
+<button class="t" data-m="90">90 min</button>
+</div>
+<div class="row">
+<button class="file-btn" id="addVideoBtn">Add video for this mode</button>
+<input id="videoInput" type="file" accept="video/*"/>
+</div>
+<button id="play">Play</button>
+<div class="vol">Master <input id="mv" type="range" min="0" max="100" value="75"></div>
+<div class="vol">Binaural <input id="bv" type="range" min="0" max="100" value="30"></div>
+<div class="vol">Music <input id="uv" type="range" min="0" max="100" value="22"></div>
+<div class="vol">Nature <input id="nv" type="range" min="0" max="100" value="45"></div>
+<div id="status">Select a mode, then press play. Headphones required.</div>
+<div id="timer"></div>
+<p class="note">Locked hero: dusk living room, studio headphones, gold and teal light. Add your own loop per mode if you want.</p>
+<script>
+const MODES=[{id:'deep-sleep',name:'Deep Sleep',freq:2},{id:'calm',name:'Calm / Sleep',freq:4},{id:'relax',name:'Relax',freq:6},{id:'destress',name:'De-stress',freq:10},{id:'focus',name:'Focus',freq:15}];
+const customVideo={};
+let ctx,leftOsc,rightOsc,bG,mG,nG,xG,playing=false,fading=false,mode=null,nature='none',mins=0,tInt,musicNodes=[],natureNodes=[];
+const status=document.getElementById('status'),playBtn=document.getElementById('play'),box=document.getElementById('modes');
+MODES.forEach(m=>{const b=document.createElement('button');b.innerHTML=m.name+'<br>'+m.freq+' Hz';b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' \u00b7 '+m.freq+' Hz';if(playing&&!fading)startBin();setScene()};box.appendChild(b)});
+function setScene(){const v=document.getElementById('bgVideo');const hero=document.getElementById('hero');const custom=mode&&customVideo[mode.id];if(custom){v.src=custom;v.style.cssText='position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:.55';v.play().catch(()=>{});hero.style.opacity='0'}else{v.pause();v.removeAttribute('src');v.style.display='none';hero.style.opacity='.45'}}
+document.querySelectorAll('.n').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.n').forEach(x=>x.classList.remove('on'));b.classList.add('on');nature=b.dataset.s;if(playing&&!fading)startNat()}});
+document.querySelectorAll('.t').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.t').forEach(x=>x.classList.remove('on'));b.classList.add('on');mins=+b.dataset.m;if(playing&&!fading)startT()}});
+document.getElementById('addVideoBtn').onclick=()=>{if(!mode){status.textContent='Select a mode first, then add its video';return}document.getElementById('videoInput').click()};
+document.getElementById('videoInput').onchange=e=>{const file=e.target.files&&e.target.files[0];if(!file||!mode)return;if(customVideo[mode.id])URL.revokeObjectURL(customVideo[mode.id]);customVideo[mode.id]=URL.createObjectURL(file);setScene();status.textContent='Video added for '+mode.name;e.target.value=''};
+function init(){if(ctx)return;ctx=new(window.AudioContext||window.webkitAudioContext)();xG=ctx.createGain();xG.gain.value=.75;xG.connect(ctx.destination);bG=ctx.createGain();bG.gain.value=.3;bG.connect(xG);mG=ctx.createGain();mG.gain.value=.22;mG.connect(xG);nG=ctx.createGain();nG.gain.value=.45;nG.connect(xG)}
+function stopList(list){list.forEach(n=>{try{n.stop&&n.stop();n.disconnect()}catch(e){}})}
+function stopNature(){stopList(natureNodes);natureNodes=[]}
+function stopMusic(){stopList(musicNodes);musicNodes=[]}
+function stopAll(){try{leftOsc&&leftOsc.stop();rightOsc&&rightOsc.stop()}catch(e){}leftOsc=rightOsc=null;stopNature();stopMusic()}
+function startBin(){try{leftOsc&&leftOsc.stop();rightOsc&&rightOsc.stop()}catch(e){}leftOsc=ctx.createOscillator();rightOsc=ctx.createOscillator();leftOsc.type=rightOsc.type='sine';leftOsc.frequency.value=200;rightOsc.frequency.value=200+mode.freq;const lp=ctx.createStereoPanner();lp.pan.value=-1;const rp=ctx.createStereoPanner();rp.pan.value=1;leftOsc.connect(lp).connect(bG);rightOsc.connect(rp).connect(bG);leftOsc.start();rightOsc.start()}
+function noise(){const buf=ctx.createBuffer(2,ctx.sampleRate*2,ctx.sampleRate);for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;return s}
+function startNat(){stopNature();if(nature==='none')return;if(nature==='ocean'){const s=noise(),f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=420;s.connect(f).connect(nG);s.start();natureNodes.push(s,f)}else if(nature==='rain'){const s=noise(),f=ctx.createBiquadFilter();f.type='highpass';f.frequency.value=1800;const g=ctx.createGain();g.gain.value=.25;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else{const s=noise(),f=ctx.createBiquadFilter();f.type='bandpass';f.frequency.value=2200;const g=ctx.createGain();g.gain.value=.2;s.connect(f).connect(g).connect(nG);const r=noise(),rf=ctx.createBiquadFilter();rf.type='lowpass';rf.frequency.value=140;r.connect(rf).connect(nG);s.start();r.start();natureNodes.push(s,f,g,r,rf)}}
+function startMus(){stopMusic();[130.81,164.81,196,246.94].forEach((fq,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=fq;const g=ctx.createGain();g.gain.value=.08;const l=ctx.createOscillator();l.frequency.value=.04+i*.015;const lg=ctx.createGain();lg.gain.value=.05;l.connect(lg).connect(g.gain);o.connect(g).connect(mG);o.start();l.start();musicNodes.push(o,l,g,lg)})}
+function startT(){clearInterval(tInt);if(!mins){document.getElementById('timer').textContent='';return}const end=Date.now()+mins*60000;tInt=setInterval(()=>{const r=end-Date.now();if(r<=0){clearInterval(tInt);document.getElementById('timer').textContent='Fading out';fade();return}const m=Math.floor(r/60000),s=Math.floor((r%60000)/1000);document.getElementById('timer').textContent='Timer \u00b7 '+m+':'+String(s).padStart(2,'0')},1000)}
+function fade(){if(fading||!xG)return;fading=true;playBtn.textContent='...';const start=xG.gain.value;let i=0;const id=setInterval(()=>{i++;xG.gain.value=Math.max(0,start*(1-i/80));if(i>=80){clearInterval(id);stopAll();playing=false;fading=false;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent='Session ended gently';document.getElementById('timer').textContent='';xG.gain.value=document.getElementById('mv').value/100}},500)}
+playBtn.onclick=async()=>{if(fading)return;if(!mode){status.textContent='Please select a mode first';return}init();if(ctx.state==='suspended')await ctx.resume();if(playing){stopAll();clearInterval(tInt);playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' \u00b7 paused'}else{startBin();startMus();startNat();playing=true;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' \u00b7 '+mode.freq+' Hz playing';if(mins)startT()}};
+document.getElementById('mv').oninput=e=>{if(xG&&!fading)xG.gain.value=e.target.value/100};
+document.getElementById('bv').oninput=e=>{if(bG)bG.gain.value=e.target.value/100};
+document.getElementById('uv').oninput=e=>{if(mG)mG.gain.value=e.target.value/100};
+document.getElementById('nv').oninput=e=>{if(nG)nG.gain.value=e.target.value/100};
+</script>
+</body>
+</html>
