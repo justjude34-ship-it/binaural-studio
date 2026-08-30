@@ -8,12 +8,13 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#07141c;color:#f3ead8;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px 16px 40px;text-align:center}
 #hero{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-4;opacity:.68;background:#07141c}
-.wash{position:fixed;inset:0;z-index:-2;background:linear-gradient(180deg,rgba(7,20,28,.12),rgba(7,20,28,.78))}
+.wash{position:fixed;inset:0;z-index:-3;background:linear-gradient(180deg,rgba(7,20,28,.12),rgba(7,20,28,.78));pointer-events:none}
 h1{font-weight:300;letter-spacing:.22em;font-size:1.12rem;margin:8px 0 14px;color:#e8c36a}
 .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;max-width:640px}
-button{background:rgba(7,20,28,.55);border:1px solid rgba(232,195,106,.3);color:#f3ead8;padding:10px 14px;border-radius:28px;font-size:.86rem}
+button,.filelab{background:rgba(7,20,28,.55);border:1px solid rgba(232,195,106,.3);color:#f3ead8;padding:10px 14px;border-radius:28px;font-size:.86rem}
 button.on{background:linear-gradient(135deg,rgba(212,175,55,.92),rgba(46,196,182,.55));color:#0b1418;font-weight:600}
-#setHero{border-color:#e8c36a;color:#e8c36a;margin-bottom:10px}
+.filelab{display:flex;flex-direction:column;align-items:center;gap:8px;border-color:#e8c36a;color:#e8c36a;margin-bottom:12px;max-width:320px}
+.filelab input{width:min(280px,86vw);color:#f3ead8}
 #play{width:78px;height:78px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f0d78a,#d4af37 46%,#1a7f78);color:#0b1418;font-weight:600;margin:12px 0 16px}
 .vol{width:min(320px,92vw);text-align:left;font-size:.74rem;color:rgba(243,234,216,.75);margin:7px 0}
 input[type=range]{width:100%;accent-color:#d4af37}
@@ -24,8 +25,9 @@ input[type=range]{width:100%;accent-color:#d4af37}
 <video id="hero" autoplay muted loop playsinline webkit-playsinline></video>
 <div class="wash"></div>
 <h1>BINAURAL STUDIO</h1>
-<button id="setHero" type="button">Set hero loop</button>
-<input id="heroFile" type="file" accept="video/*" hidden>
+<label class="filelab">Choose dusk video
+<input id="heroFile" type="file" accept="video/mp4,video/*,*/*">
+</label>
 <div class="row" id="modes"></div>
 <div class="row">
 <button class="n on" data-s="none">None</button>
@@ -44,22 +46,24 @@ input[type=range]{width:100%;accent-color:#d4af37}
 <div class="vol">Binaural <input id="bv" type="range" min="0" max="100" value="30"></div>
 <div class="vol">Music <input id="uv" type="range" min="0" max="100" value="22"></div>
 <div class="vol">Nature <input id="nv" type="range" min="0" max="100" value="45"></div>
-<div id="status">Calm / Sleep ready. Tap Set hero loop, then Play.</div>
-<p class="note">Headphones required. Choose the dusk sofa clip once and it loops behind every mode.</p>
+<div id="status">Calm / Sleep ready. Choose the dusk video, then Play.</div>
+<p class="note">Headphones required. Pick 1000172901. The room then loops behind every mode.</p>
 <script>
 const MODES=[{name:'Deep Sleep',freq:2},{name:'Calm / Sleep',freq:4},{name:'Relax',freq:6},{name:'De-stress',freq:10},{name:'Focus',freq:15}];
 let ctx,leftOsc,rightOsc,bG,mG,nG,xG,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[];
 const status=document.getElementById('status'),playBtn=document.getElementById('play'),hero=document.getElementById('hero'),box=document.getElementById('modes');
-document.getElementById('setHero').onclick=()=>document.getElementById('heroFile').click();
-document.getElementById('heroFile').onchange=e=>{
+document.getElementById('heroFile').addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];
-  if(!f)return;
+  if(!f){status.textContent='No video chosen yet';return;}
   hero.src=URL.createObjectURL(f);
-  hero.play().catch(()=>{});
-  status.textContent='Hero loop on · '+mode.name;
-};
+  hero.muted=true;
+  hero.loop=true;
+  hero.playsInline=true;
+  const p=hero.play();
+  if(p&&p.catch)p.catch(()=>{});
+  status.textContent='Hero loop on · '+f.name;
+});
 function kickHero(){hero.play().catch(()=>{});}
-document.body.addEventListener('pointerdown',kickHero,{once:true});
 MODES.forEach((m,i)=>{const b=document.createElement('button');b.innerHTML=m.name+'<br>'+m.freq+' Hz';if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' · '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
 document.querySelectorAll('.n').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.n').forEach(x=>x.classList.remove('on'));b.classList.add('on');nature=b.dataset.s;if(playing)startNat()}});
 function init(){if(ctx)return;ctx=new(window.AudioContext||window.webkitAudioContext)();xG=ctx.createGain();xG.gain.value=.75;xG.connect(ctx.destination);bG=ctx.createGain();bG.gain.value=.3;bG.connect(xG);mG=ctx.createGain();mG.gain.value=.22;mG.connect(xG);nG=ctx.createGain();nG.gain.value=.45;nG.connect(xG)}
