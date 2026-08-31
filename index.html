@@ -15,6 +15,7 @@ button,.filelab{background:rgba(7,20,28,.55);border:1px solid rgba(232,195,106,.
 button.on{background:linear-gradient(135deg,rgba(212,175,55,.92),rgba(46,196,182,.55));color:#0b1418;font-weight:600}
 .filelab{display:flex;flex-direction:column;align-items:center;gap:8px;border-color:#e8c36a;color:#e8c36a;margin-bottom:12px;max-width:320px}
 .filelab input{width:min(280px,86vw);color:#f3ead8}
+#boost{border-color:#e8c36a;color:#e8c36a;margin-bottom:8px}
 #play{width:78px;height:78px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f0d78a,#d4af37 46%,#1a7f78);color:#0b1418;font-weight:600;margin:12px 0 16px}
 .vol{width:min(320px,92vw);text-align:left;font-size:.74rem;color:rgba(243,234,216,.75);margin:7px 0}
 input[type=range]{width:100%;accent-color:#d4af37}
@@ -41,38 +42,50 @@ input[type=range]{width:100%;accent-color:#d4af37}
 <button class="t" data-m="30">30 min</button>
 <button class="t" data-m="60">60 min</button>
 </div>
+<button id="boost" type="button">Hearing boost on</button>
 <button id="play">Play</button>
-<div class="vol">Master <input id="mv" type="range" min="0" max="100" value="75"></div>
-<div class="vol">Binaural <input id="bv" type="range" min="0" max="100" value="30"></div>
-<div class="vol">Music <input id="uv" type="range" min="0" max="100" value="22"></div>
-<div class="vol">Nature <input id="nv" type="range" min="0" max="100" value="45"></div>
-<div id="status">Calm / Sleep ready. Choose the dusk video, then Play.</div>
-<p class="note">Headphones required. Pick 1000172901. The room then loops behind every mode.</p>
+<div class="vol">Master <input id="mv" type="range" min="0" max="150" value="100"></div>
+<div class="vol">Binaural <input id="bv" type="range" min="0" max="100" value="70"></div>
+<div class="vol">Music <input id="uv" type="range" min="0" max="100" value="40"></div>
+<div class="vol">Nature <input id="nv" type="range" min="0" max="100" value="65"></div>
+<div id="status">Calm / Sleep ready. Headphones on, then Play.</div>
+<p class="note">Headphones required. Hearing boost is on so the beats stay loud enough. Slide Master further right if you still need more.</p>
 <script>
 const MODES=[{name:'Deep Sleep',freq:2},{name:'Calm / Sleep',freq:4},{name:'Relax',freq:6},{name:'De-stress',freq:10},{name:'Focus',freq:15}];
-let ctx,leftOsc,rightOsc,bG,mG,nG,xG,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[];
-const status=document.getElementById('status'),playBtn=document.getElementById('play'),hero=document.getElementById('hero'),box=document.getElementById('modes');
+let ctx,leftOsc,rightOsc,bG,mG,nG,xG,boostG,comp,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[],boostOn=true;
+const status=document.getElementById('status'),playBtn=document.getElementById('play'),hero=document.getElementById('hero'),box=document.getElementById('modes'),boostBtn=document.getElementById('boost');
+boostBtn.classList.add('on');
 document.getElementById('heroFile').addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];
   if(!f){status.textContent='No video chosen yet';return;}
   hero.src=URL.createObjectURL(f);
-  hero.muted=true;
-  hero.loop=true;
-  hero.playsInline=true;
-  const p=hero.play();
-  if(p&&p.catch)p.catch(()=>{});
+  hero.muted=true;hero.loop=true;hero.playsInline=true;
+  const p=hero.play();if(p&&p.catch)p.catch(()=>{});
   status.textContent='Hero loop on · '+f.name;
 });
 function kickHero(){hero.play().catch(()=>{});}
+function setBoost(){if(boostG)boostG.gain.value=boostOn?2.2:1}
+boostBtn.onclick=()=>{boostOn=!boostOn;boostBtn.textContent=boostOn?'Hearing boost on':'Hearing boost off';boostBtn.classList.toggle('on',boostOn);setBoost();};
 MODES.forEach((m,i)=>{const b=document.createElement('button');b.innerHTML=m.name+'<br>'+m.freq+' Hz';if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' · '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
 document.querySelectorAll('.n').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.n').forEach(x=>x.classList.remove('on'));b.classList.add('on');nature=b.dataset.s;if(playing)startNat()}});
-function init(){if(ctx)return;ctx=new(window.AudioContext||window.webkitAudioContext)();xG=ctx.createGain();xG.gain.value=.75;xG.connect(ctx.destination);bG=ctx.createGain();bG.gain.value=.3;bG.connect(xG);mG=ctx.createGain();mG.gain.value=.22;mG.connect(xG);nG=ctx.createGain();nG.gain.value=.45;nG.connect(xG)}
+function init(){
+  if(ctx)return;
+  ctx=new(window.AudioContext||window.webkitAudioContext)();
+  xG=ctx.createGain();xG.gain.value=1;
+  boostG=ctx.createGain();setBoost();
+  comp=ctx.createDynamicsCompressor();
+  comp.threshold.value=-12;comp.knee.value=18;comp.ratio.value=4;comp.attack.value=.01;comp.release.value=.18;
+  xG.connect(boostG);boostG.connect(comp);comp.connect(ctx.destination);
+  bG=ctx.createGain();bG.gain.value=.7;bG.connect(xG);
+  mG=ctx.createGain();mG.gain.value=.4;mG.connect(xG);
+  nG=ctx.createGain();nG.gain.value=.65;nG.connect(xG);
+}
 function stopList(list){list.forEach(n=>{try{n.stop&&n.stop();n.disconnect()}catch(e){}})}
 function stopAll(){try{leftOsc&&leftOsc.stop();rightOsc&&rightOsc.stop()}catch(e){}leftOsc=rightOsc=null;stopList(musicNodes);stopList(natureNodes);musicNodes=[];natureNodes=[]}
-function startBin(){try{leftOsc&&leftOsc.stop();rightOsc&&rightOsc.stop()}catch(e){}leftOsc=ctx.createOscillator();rightOsc=ctx.createOscillator();leftOsc.type=rightOsc.type='sine';leftOsc.frequency.value=200;rightOsc.frequency.value=200+mode.freq;const lp=ctx.createStereoPanner();lp.pan.value=-1;const rp=ctx.createStereoPanner();rp.pan.value=1;leftOsc.connect(lp).connect(bG);rightOsc.connect(rp).connect(bG);leftOsc.start();rightOsc.start()}
+function startBin(){try{leftOsc&&leftOsc.stop();rightOsc&&rightOsc.stop()}catch(e){}leftOsc=ctx.createOscillator();rightOsc=ctx.createOscillator();leftOsc.type=rightOsc.type='sine';leftOsc.frequency.value=180;rightOsc.frequency.value=180+mode.freq;const lp=ctx.createStereoPanner();lp.pan.value=-1;const rp=ctx.createStereoPanner();rp.pan.value=1;leftOsc.connect(lp).connect(bG);rightOsc.connect(rp).connect(bG);leftOsc.start();rightOsc.start()}
 function noise(){const buf=ctx.createBuffer(2,ctx.sampleRate*2,ctx.sampleRate);for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;return s}
-function startNat(){stopList(natureNodes);natureNodes=[];if(nature==='none')return;const s=noise(),f=ctx.createBiquadFilter();if(nature==='ocean'){f.type='lowpass';f.frequency.value=420;s.connect(f).connect(nG);s.start();natureNodes.push(s,f)}else if(nature==='rain'){f.type='highpass';f.frequency.value=1800;const g=ctx.createGain();g.gain.value=.28;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else{f.type='bandpass';f.frequency.value=2200;const g=ctx.createGain();g.gain.value=.22;s.connect(f).connect(g).connect(nG);const r=noise(),rf=ctx.createBiquadFilter();rf.type='lowpass';rf.frequency.value=140;r.connect(rf).connect(nG);s.start();r.start();natureNodes.push(s,f,g,r,rf)}}
-function startMus(){stopList(musicNodes);musicNodes=[];[130.81,164.81,196,246.94].forEach((fq,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=fq;const g=ctx.createGain();g.gain.value=.08;const l=ctx.createOscillator();l.frequency.value=.04+i*.015;const lg=ctx.createGain();lg.gain.value=.05;l.connect(lg).connect(g.gain);o.connect(g).connect(mG);o.start();l.start();musicNodes.push(o,l,g,lg)})}
+function startNat(){stopList(natureNodes);natureNodes=[];if(nature==='none')return;const s=noise(),f=ctx.createBiquadFilter();if(nature==='ocean'){f.type='lowpass';f.frequency.value=420;const g=ctx.createGain();g.gain.value=.9;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else if(nature==='rain'){f.type='highpass';f.frequency.value=1800;const g=ctx.createGain();g.gain.value=.7;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else{f.type='bandpass';f.frequency.value=2200;const g=ctx.createGain();g.gain.value=.65;s.connect(f).connect(g).connect(nG);const r=noise(),rf=ctx.createBiquadFilter();rf.type='lowpass';rf.frequency.value=140;const rg=ctx.createGain();rg.gain.value=.8;r.connect(rf).connect(rg).connect(nG);s.start();r.start();natureNodes.push(s,f,g,r,rf,rg)}}
+function startMus(){stopList(musicNodes);musicNodes=[];[130.81,164.81,196,246.94].forEach((fq,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=fq;const g=ctx.createGain();g.gain.value=.16;const l=ctx.createOscillator();l.frequency.value=.04+i*.015;const lg=ctx.createGain();lg.gain.value=.08;l.connect(lg).connect(g.gain);o.connect(g).connect(mG);o.start();l.start();musicNodes.push(o,l,g,lg)})}
 playBtn.onclick=async()=>{kickHero();try{init();if(ctx.state==='suspended')await ctx.resume();if(playing){stopAll();playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' · paused'}else{startBin();startMus();startNat();playing=true;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' · '+mode.freq+' Hz playing'}}catch(e){status.textContent='Tap Play once more to unlock sound'}};
 document.getElementById('mv').oninput=e=>{if(xG)xG.gain.value=e.target.value/100};
 document.getElementById('bv').oninput=e=>{if(bG)bG.gain.value=e.target.value/100};
