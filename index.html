@@ -26,9 +26,6 @@ input[type=range]{width:100%;accent-color:#d4af37}
 <video id="hero" autoplay muted loop playsinline webkit-playsinline></video>
 <div class="wash"></div>
 <h1>BINAURAL STUDIO</h1>
-<label class="filelab">Choose dusk video
-<input id="heroFile" type="file" accept="video/mp4,video/*,*/*">
-</label>
 <div class="row" id="modes"></div>
 <div class="row">
 <button class="n on" data-s="none">None</button>
@@ -55,15 +52,6 @@ const MODES=[{name:'Deep Sleep',freq:2},{name:'Calm / Sleep',freq:4},{name:'Rela
 let ctx,leftOsc,rightOsc,bG,mG,nG,xG,boostG,comp,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[],boostOn=true;
 const status=document.getElementById('status'),playBtn=document.getElementById('play'),hero=document.getElementById('hero'),box=document.getElementById('modes'),boostBtn=document.getElementById('boost');
 boostBtn.classList.add('on');
-document.getElementById('heroFile').addEventListener('change',e=>{
-  const f=e.target.files&&e.target.files[0];
-  if(!f){status.textContent='No video chosen yet';return;}
-  hero.src=URL.createObjectURL(f);
-  hero.muted=true;hero.loop=true;hero.playsInline=true;
-  const p=hero.play();if(p&&p.catch)p.catch(()=>{});
-  status.textContent='Hero loop on · '+f.name;
-});
-function kickHero(){hero.play().catch(()=>{});}
 function setBoost(){if(boostG)boostG.gain.value=boostOn?2.2:1}
 boostBtn.onclick=()=>{boostOn=!boostOn;boostBtn.textContent=boostOn?'Hearing boost on':'Hearing boost off';boostBtn.classList.toggle('on',boostOn);setBoost();};
 MODES.forEach((m,i)=>{const b=document.createElement('button');b.innerHTML=m.name+'<br>'+m.freq+' Hz';if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' · '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
@@ -86,7 +74,7 @@ function startBin(){try{leftOsc&&leftOsc.stop();rightOsc&&rightOsc.stop()}catch(
 function noise(){const buf=ctx.createBuffer(2,ctx.sampleRate*2,ctx.sampleRate);for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;return s}
 function startNat(){stopList(natureNodes);natureNodes=[];if(nature==='none')return;const s=noise(),f=ctx.createBiquadFilter();if(nature==='ocean'){f.type='lowpass';f.frequency.value=420;const g=ctx.createGain();g.gain.value=.9;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else if(nature==='rain'){f.type='highpass';f.frequency.value=1800;const g=ctx.createGain();g.gain.value=.7;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else{f.type='bandpass';f.frequency.value=2200;const g=ctx.createGain();g.gain.value=.65;s.connect(f).connect(g).connect(nG);const r=noise(),rf=ctx.createBiquadFilter();rf.type='lowpass';rf.frequency.value=140;const rg=ctx.createGain();rg.gain.value=.8;r.connect(rf).connect(rg).connect(nG);s.start();r.start();natureNodes.push(s,f,g,r,rf,rg)}}
 function startMus(){stopList(musicNodes);musicNodes=[];[130.81,164.81,196,246.94].forEach((fq,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=fq;const g=ctx.createGain();g.gain.value=.16;const l=ctx.createOscillator();l.frequency.value=.04+i*.015;const lg=ctx.createGain();lg.gain.value=.08;l.connect(lg).connect(g.gain);o.connect(g).connect(mG);o.start();l.start();musicNodes.push(o,l,g,lg)})}
-playBtn.onclick=async()=>{kickHero();try{init();if(ctx.state==='suspended')await ctx.resume();if(playing){stopAll();playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' · paused'}else{startBin();startMus();startNat();playing=true;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' · '+mode.freq+' Hz playing'}}catch(e){status.textContent='Tap Play once more to unlock sound'}};
+playBtn.onclick=async()=>{try{init();if(ctx.state==='suspended')await ctx.resume();if(playing){stopAll();playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' · paused'}else{startBin();startMus();startNat();playing=true;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' · '+mode.freq+' Hz playing'}}catch(e){status.textContent='Tap Play once more to unlock sound'}};
 document.getElementById('mv').oninput=e=>{if(xG)xG.gain.value=e.target.value/100};
 document.getElementById('bv').oninput=e=>{if(bG)bG.gain.value=e.target.value/100};
 document.getElementById('uv').oninput=e=>{if(mG)mG.gain.value=e.target.value/100};
