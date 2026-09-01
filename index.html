@@ -1,70 +1,104 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="theme-color" content="#1a5f68"/>
-<title>Binaural Studio</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#07141c"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>SomniTwo</title>
 <style>
-:root{--gold:#d4af37;--gold2:#f0d78a;--teal:#2ec4b6;--cream:#fff6e8;--ink:#2a2116}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--cream);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 14px 36px;text-align:center;background:
-radial-gradient(ellipse at 20% 10%,rgba(240,215,138,.55),transparent 46%),
-radial-gradient(ellipse at 90% 20%,rgba(46,196,182,.45),transparent 42%),
-linear-gradient(180deg,#5fa8a4 0%,#c9a45a 42%,#8b5a2b 100%)}
-.wash{position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(255,246,232,.08),rgba(42,33,22,.28))}
-h1{font-weight:300;letter-spacing:.22em;font-size:1.12rem;margin:6px 0 4px;color:#fff4d2;text-shadow:0 1px 8px rgba(42,33,22,.35)}
-.tag{font-size:.76rem;opacity:.9;margin-bottom:14px;color:#fff6e8}
-.panel{width:min(420px,94vw);background:rgba(255,246,232,.18);border:1px solid rgba(240,215,138,.45);border-radius:22px;padding:16px 14px 18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:#07141c;color:#f3ead8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;touch-action:manipulation}
+body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:max(22px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));text-align:center}
+#hero{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-5;opacity:0;background:#07141c;pointer-events:none}
+#hero.on{opacity:.42}
+.sky{position:fixed;inset:0;z-index:-4;pointer-events:none;background:
+  radial-gradient(ellipse at 50% 118%,rgba(232,195,106,.22),transparent 42%),
+  radial-gradient(ellipse at 18% 8%,rgba(46,196,182,.16),transparent 36%),
+  radial-gradient(ellipse at 82% 18%,rgba(232,195,106,.08),transparent 40%),
+  linear-gradient(180deg,#0b1a24 0%,#07141c 55%,#05090c 100%)}
+.stars{position:fixed;inset:0;z-index:-3;pointer-events:none;background-image:
+  radial-gradient(1px 1px at 12% 18%,rgba(255,246,232,.8),transparent),
+  radial-gradient(1px 1px at 28% 42%,rgba(255,246,232,.55),transparent),
+  radial-gradient(1.5px 1.5px at 46% 12%,rgba(255,246,232,.9),transparent),
+  radial-gradient(1px 1px at 68% 28%,rgba(255,246,232,.5),transparent),
+  radial-gradient(1px 1px at 84% 16%,rgba(255,246,232,.7),transparent),
+  radial-gradient(1.5px 1.5px at 74% 58%,rgba(255,246,232,.45),transparent),
+  radial-gradient(1px 1px at 18% 72%,rgba(255,246,232,.4),transparent),
+  radial-gradient(1px 1px at 92% 78%,rgba(255,246,232,.35),transparent);
+  animation:twinkle 8s ease-in-out infinite alternate}
+.wash{position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(180deg,rgba(7,20,28,.12),rgba(7,20,28,.72))}
+@keyframes twinkle{from{opacity:.55}to{opacity:1}}
+h1{font-weight:300;letter-spacing:.28em;font-size:1.05rem;margin:18px 0 8px;color:#e8c36a;text-transform:uppercase}
+.tag{font-size:.78rem;color:rgba(243,234,216,.7);margin-bottom:18px}
+#play{width:84px;height:84px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f0d78a,#d4af37 46%,#1a7f78);color:#07141c;font-weight:600;margin:4px 0 10px;box-shadow:0 0 36px rgba(232,195,106,.28)}
+#play:active{transform:scale(.96)}
+#clock{font-variant-numeric:tabular-nums;font-size:1rem;color:#f3ead8;min-height:1.3em;margin-bottom:18px}
+.panel{width:min(400px,94vw);background:rgba(7,20,28,.62);border:1px solid rgba(232,195,106,.22);border-radius:20px;padding:14px 12px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
-button,.filelab{background:rgba(42,33,22,.28);border:1px solid rgba(240,215,138,.4);color:var(--cream);padding:9px 12px;border-radius:28px;font-size:.8rem}
-button.on{background:linear-gradient(135deg,#f0d78a,#2ec4b6);color:#1a140c;font-weight:600}
-.filelab{display:block;border-style:dashed;margin:8px auto 0;max-width:280px;font-size:.74rem}
-.filelab input{display:block;width:100%;margin-top:6px;color:var(--cream);font-size:.7rem}
-#boost{border-color:#f0d78a;color:#fff4d2;margin:4px 0 6px}
-#play{width:76px;height:76px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#fff1c4,#d4af37 46%,#1a7f78);color:#1a140c;font-weight:600;margin:8px 0 12px}
-.vol{width:100%;text-align:left;font-size:.72rem;color:#fff6e8;margin:6px 0}
+button,.filelab{background:rgba(7,20,28,.45);border:1px solid rgba(232,195,106,.28);color:#f3ead8;padding:10px 12px;border-radius:28px;font-size:.8rem;min-height:40px}
+button.on{background:linear-gradient(135deg,rgba(240,215,138,.92),rgba(46,196,182,.55));color:#07141c;font-weight:600}
+.filelab{display:none}
+.more{margin-top:10px;font-size:.7rem;color:rgba(243,234,216,.45);text-decoration:underline;background:none;border:0;padding:6px;min-height:0}
+.vol{width:100%;text-align:left;font-size:.72rem;color:rgba(243,234,216,.7);margin:6px 0}
 input[type=range]{width:100%;accent-color:#d4af37}
-#status{margin-top:8px;font-size:.82rem}
-.note{opacity:.75;font-size:.68rem;max-width:340px;margin-top:12px}
-</style></head>
+#status{margin-top:10px;font-size:.8rem;color:rgba(243,234,216,.75);min-height:1.2em}
+.note{opacity:.4;font-size:.68rem;max-width:320px;margin-top:14px}
+</style>
+</head>
 <body>
+<video id="hero" muted loop playsinline webkit-playsinline></video>
+<div class="sky"></div>
+<div class="stars"></div>
 <div class="wash"></div>
-<h1>BINAURAL STUDIO</h1>
-<p class="tag">Warm gold and teal · headphones on · 4 Hz calm</p>
+<h1>SomniTwo</h1>
+<p class="tag">Night cover \u00b7 headphones on</p>
+<button id="play" type="button" aria-label="Play">Play</button>
+<p id="clock">Tap Play</p>
 <div class="panel">
 <div class="row" id="modes"></div>
 <div class="row">
-<button class="n on" data-s="none">None</button>
-<button class="n" data-s="ocean">Ocean</button>
-<button class="n" data-s="rain">Rain</button>
-<button class="n" data-s="storm">Rainstorm</button>
+<button class="n on" data-s="none" type="button">None</button>
+<button class="n" data-s="ocean" type="button">Ocean</button>
+<button class="n" data-s="rain" type="button">Rain</button>
+<button class="n" data-s="storm" type="button">Rainstorm</button>
 </div>
 <div class="row">
-<button class="t on" data-m="0">Timer off</button>
-<button class="t" data-m="15">15 min</button>
-<button class="t" data-m="30">30 min</button>
-<button class="t" data-m="60">60 min</button>
+<button class="t on" data-m="0" type="button">Timer off</button>
+<button class="t" data-m="15" type="button">15 min</button>
+<button class="t" data-m="30" type="button">30 min</button>
+<button class="t" data-m="60" type="button">60 min</button>
 </div>
 <button id="boost" type="button" class="on">Hearing boost on</button>
-<button id="play">Play</button>
 <div class="vol">Master <input id="mv" type="range" min="0" max="150" value="100"></div>
 <div class="vol">Binaural <input id="bv" type="range" min="0" max="100" value="70"></div>
 <div class="vol">Music <input id="uv" type="range" min="0" max="100" value="40"></div>
 <div class="vol">Nature <input id="nv" type="range" min="0" max="100" value="65"></div>
-<label class="filelab">Optional: add a moving room loop
+<button class="more" id="showFile" type="button">Optional room video</button>
+<label class="filelab" id="fileWrap">Choose a muted loop
 <input id="heroFile" type="file" accept="video/mp4,video/*,*/*">
 </label>
-<div id="status">Calm / Sleep ready. Headphones on, then Play.</div>
+<div id="status">Calm / Sleep ready.</div>
 </div>
-<p class="note">Not a dark room. Gold lamp light and teal water-light. Hearing boost stays on.</p>
+<p class="note">Dark night cover. Sound is still the studio mix.</p>
 <script>
 const MODES=[{name:'Deep Sleep',freq:2},{name:'Calm / Sleep',freq:4},{name:'Relax',freq:6},{name:'De-stress',freq:10},{name:'Focus',freq:15}];
-let ctx,leftOsc,rightOsc,bG,mG,nG,xG,boostG,comp,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[],boostOn=true;
-const status=document.getElementById('status'),playBtn=document.getElementById('play'),box=document.getElementById('modes'),boostBtn=document.getElementById('boost');
+let ctx,leftOsc,rightOsc,bG,mG,nG,xG,boostG,comp,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[],boostOn=true,endsAt=null,timerMin=0;
+const status=document.getElementById('status'),playBtn=document.getElementById('play'),box=document.getElementById('modes'),boostBtn=document.getElementById('boost'),hero=document.getElementById('hero'),clock=document.getElementById('clock');
 function setBoost(){if(boostG)boostG.gain.value=boostOn?2.2:1}
 boostBtn.onclick=()=>{boostOn=!boostOn;boostBtn.textContent=boostOn?'Hearing boost on':'Hearing boost off';boostBtn.classList.toggle('on',boostOn);setBoost();};
-MODES.forEach((m,i)=>{const b=document.createElement('button');b.innerHTML=m.name+'<br>'+m.freq+' Hz';if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' · '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
+document.getElementById('showFile').onclick=()=>{document.getElementById('fileWrap').style.display='block';document.getElementById('showFile').style.display='none'};
+document.getElementById('heroFile').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0];
+  if(!f)return;
+  hero.src=URL.createObjectURL(f);
+  hero.muted=true;hero.loop=true;hero.playsInline=true;
+  hero.classList.add('on');
+  hero.play().catch(()=>{});
+});
+MODES.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML=m.name+'<br>'+m.freq+' Hz';if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' \u00b7 '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
 document.querySelectorAll('.n').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.n').forEach(x=>x.classList.remove('on'));b.classList.add('on');nature=b.dataset.s;if(playing)startNat()}});
+document.querySelectorAll('.t').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.t').forEach(x=>x.classList.remove('on'));b.classList.add('on');timerMin=Number(b.dataset.m);if(playing)endsAt=timerMin?Date.now()+timerMin*60000:null;tick()}});
 function init(){
   if(ctx)return;
   ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -83,10 +117,25 @@ function startBin(){try{leftOsc&&leftOsc.stop();rightOsc&&rightOsc.stop()}catch(
 function noise(){const buf=ctx.createBuffer(2,ctx.sampleRate*2,ctx.sampleRate);for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;return s}
 function startNat(){stopList(natureNodes);natureNodes=[];if(nature==='none')return;const s=noise(),f=ctx.createBiquadFilter();if(nature==='ocean'){f.type='lowpass';f.frequency.value=420;const g=ctx.createGain();g.gain.value=.9;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else if(nature==='rain'){f.type='highpass';f.frequency.value=1800;const g=ctx.createGain();g.gain.value=.7;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else{f.type='bandpass';f.frequency.value=2200;const g=ctx.createGain();g.gain.value=.65;s.connect(f).connect(g).connect(nG);const r=noise(),rf=ctx.createBiquadFilter();rf.type='lowpass';rf.frequency.value=140;const rg=ctx.createGain();rg.gain.value=.8;r.connect(rf).connect(rg).connect(nG);s.start();r.start();natureNodes.push(s,f,g,r,rf,rg)}}
 function startMus(){stopList(musicNodes);musicNodes=[];[130.81,164.81,196,246.94].forEach((fq,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=fq;const g=ctx.createGain();g.gain.value=.16;const l=ctx.createOscillator();l.frequency.value=.04+i*.015;const lg=ctx.createGain();lg.gain.value=.08;l.connect(lg).connect(g.gain);o.connect(g).connect(mG);o.start();l.start();musicNodes.push(o,l,g,lg)})}
-playBtn.onclick=async()=>{try{init();if(ctx.state==='suspended')await ctx.resume();if(playing){stopAll();playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' · paused'}else{startBin();startMus();startNat();playing=true;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' · '+mode.freq+' Hz playing'}}catch(e){status.textContent='Tap Play once more to unlock sound'}};
+function fmt(sec){const m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+function tick(){if(!playing){clock.textContent='Tap Play';return}if(endsAt){const left=Math.max(0,Math.ceil((endsAt-Date.now())/1000));clock.textContent=fmt(left);if(left<=0){stopAll();playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');endsAt=null;status.textContent=mode.name+' \u00b7 paused';clock.textContent='Tap Play'}}else clock.textContent='\u221e'}
+function armPlay(){
+  hero.play().catch(()=>{});
+  try{
+    init();
+    if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+    if(playing){stopAll();playing=false;endsAt=null;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' \u00b7 paused'}
+    else{startBin();startMus();startNat();playing=true;endsAt=timerMin?Date.now()+timerMin*60000:null;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' \u00b7 '+mode.freq+' Hz playing'}
+    tick();
+  }catch(e){status.textContent='Tap Play once more to unlock sound'}
+}
+playBtn.addEventListener('pointerdown',armPlay);
+playBtn.addEventListener('click',function(e){e.preventDefault()});
 document.getElementById('mv').oninput=e=>{if(xG)xG.gain.value=e.target.value/100};
 document.getElementById('bv').oninput=e=>{if(bG)bG.gain.value=e.target.value/100};
 document.getElementById('uv').oninput=e=>{if(mG)mG.gain.value=e.target.value/100};
 document.getElementById('nv').oninput=e=>{if(nG)nG.gain.value=e.target.value/100};
+setInterval(tick,250);
 </script>
-</body></html>
+</body>
+</html>
