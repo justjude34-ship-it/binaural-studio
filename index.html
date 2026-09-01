@@ -2,28 +2,36 @@
 <html lang="en"><head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="theme-color" content="#07141c"/>
+<meta name="theme-color" content="#1a5f68"/>
 <title>Binaural Studio</title>
 <style>
+:root{--gold:#d4af37;--gold2:#f0d78a;--teal:#2ec4b6;--cream:#fff6e8;--ink:#2a2116}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#07141c;color:#f3ead8;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px 16px 40px;text-align:center}
-#hero{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-4;opacity:.68;background:#07141c}
-.wash{position:fixed;inset:0;z-index:-3;background:linear-gradient(180deg,rgba(7,20,28,.12),rgba(7,20,28,.78));pointer-events:none}
-h1{font-weight:300;letter-spacing:.22em;font-size:1.12rem;margin:8px 0 14px;color:#e8c36a}
-.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;max-width:640px}
-button{background:rgba(7,20,28,.55);border:1px solid rgba(232,195,106,.3);color:#f3ead8;padding:10px 14px;border-radius:28px;font-size:.86rem}
-button.on{background:linear-gradient(135deg,rgba(212,175,55,.92),rgba(46,196,182,.55));color:#0b1418;font-weight:600}
-#boost{border-color:#e8c36a;color:#e8c36a;margin-bottom:8px}
-#play{width:78px;height:78px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f0d78a,#d4af37 46%,#1a7f78);color:#0b1418;font-weight:600;margin:12px 0 16px}
-.vol{width:min(320px,92vw);text-align:left;font-size:.74rem;color:rgba(243,234,216,.75);margin:7px 0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--cream);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 14px 36px;text-align:center;background:
+radial-gradient(ellipse at 20% 10%,rgba(240,215,138,.55),transparent 46%),
+radial-gradient(ellipse at 90% 20%,rgba(46,196,182,.45),transparent 42%),
+linear-gradient(180deg,#5fa8a4 0%,#c9a45a 42%,#8b5a2b 100%)}
+.wash{position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(255,246,232,.08),rgba(42,33,22,.28))}
+h1{font-weight:300;letter-spacing:.22em;font-size:1.12rem;margin:6px 0 4px;color:#fff4d2;text-shadow:0 1px 8px rgba(42,33,22,.35)}
+.tag{font-size:.76rem;opacity:.9;margin-bottom:14px;color:#fff6e8}
+.panel{width:min(420px,94vw);background:rgba(255,246,232,.18);border:1px solid rgba(240,215,138,.45);border-radius:22px;padding:16px 14px 18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
+button,.filelab{background:rgba(42,33,22,.28);border:1px solid rgba(240,215,138,.4);color:var(--cream);padding:9px 12px;border-radius:28px;font-size:.8rem}
+button.on{background:linear-gradient(135deg,#f0d78a,#2ec4b6);color:#1a140c;font-weight:600}
+.filelab{display:block;border-style:dashed;margin:8px auto 0;max-width:280px;font-size:.74rem}
+.filelab input{display:block;width:100%;margin-top:6px;color:var(--cream);font-size:.7rem}
+#boost{border-color:#f0d78a;color:#fff4d2;margin:4px 0 6px}
+#play{width:76px;height:76px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#fff1c4,#d4af37 46%,#1a7f78);color:#1a140c;font-weight:600;margin:8px 0 12px}
+.vol{width:100%;text-align:left;font-size:.72rem;color:#fff6e8;margin:6px 0}
 input[type=range]{width:100%;accent-color:#d4af37}
-#status{opacity:.85;margin-top:10px;font-size:.86rem}
-.note{opacity:.45;font-size:.72rem;max-width:340px;margin-top:16px}
+#status{margin-top:8px;font-size:.82rem}
+.note{opacity:.75;font-size:.68rem;max-width:340px;margin-top:12px}
 </style></head>
 <body>
-<video id="hero" autoplay muted loop playsinline webkit-playsinline src="DATA_URI_PLACEHOLDER"></video>
 <div class="wash"></div>
 <h1>BINAURAL STUDIO</h1>
+<p class="tag">Warm gold and teal · headphones on · 4 Hz calm</p>
+<div class="panel">
 <div class="row" id="modes"></div>
 <div class="row">
 <button class="n on" data-s="none">None</button>
@@ -37,19 +45,22 @@ input[type=range]{width:100%;accent-color:#d4af37}
 <button class="t" data-m="30">30 min</button>
 <button class="t" data-m="60">60 min</button>
 </div>
-<button id="boost" type="button">Hearing boost on</button>
+<button id="boost" type="button" class="on">Hearing boost on</button>
 <button id="play">Play</button>
 <div class="vol">Master <input id="mv" type="range" min="0" max="150" value="100"></div>
 <div class="vol">Binaural <input id="bv" type="range" min="0" max="100" value="70"></div>
 <div class="vol">Music <input id="uv" type="range" min="0" max="100" value="40"></div>
 <div class="vol">Nature <input id="nv" type="range" min="0" max="100" value="65"></div>
+<label class="filelab">Optional: add a moving room loop
+<input id="heroFile" type="file" accept="video/mp4,video/*,*/*">
+</label>
 <div id="status">Calm / Sleep ready. Headphones on, then Play.</div>
-<p class="note">Headphones required. Hearing boost is on so the beats stay loud enough. Slide Master further right if you still need more.</p>
+</div>
+<p class="note">Not a dark room. Gold lamp light and teal water-light. Hearing boost stays on.</p>
 <script>
 const MODES=[{name:'Deep Sleep',freq:2},{name:'Calm / Sleep',freq:4},{name:'Relax',freq:6},{name:'De-stress',freq:10},{name:'Focus',freq:15}];
 let ctx,leftOsc,rightOsc,bG,mG,nG,xG,boostG,comp,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[],boostOn=true;
-const status=document.getElementById('status'),playBtn=document.getElementById('play'),hero=document.getElementById('hero'),box=document.getElementById('modes'),boostBtn=document.getElementById('boost');
-boostBtn.classList.add('on');
+const status=document.getElementById('status'),playBtn=document.getElementById('play'),box=document.getElementById('modes'),boostBtn=document.getElementById('boost');
 function setBoost(){if(boostG)boostG.gain.value=boostOn?2.2:1}
 boostBtn.onclick=()=>{boostOn=!boostOn;boostBtn.textContent=boostOn?'Hearing boost on':'Hearing boost off';boostBtn.classList.toggle('on',boostOn);setBoost();};
 MODES.forEach((m,i)=>{const b=document.createElement('button');b.innerHTML=m.name+'<br>'+m.freq+' Hz';if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' · '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
