@@ -2,48 +2,46 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"/>
 <meta name="theme-color" content="#07141c"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <title>SomniTwo</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100%;background:#07141c;color:#f3ead8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;touch-action:manipulation}
-body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:max(22px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));text-align:center}
-#hero{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-5;opacity:0;background:#07141c;pointer-events:none}
+html,body{height:100%;height:100svh;height:100dvh;background:#07141c;color:#f3ead8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;touch-action:manipulation;overflow:hidden}
+body{display:flex;flex-direction:column;align-items:center;padding:max(8px,env(safe-area-inset-top)) 12px max(8px,env(safe-area-inset-bottom));text-align:center}
+#hero{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-5;opacity:0;pointer-events:none}
 #hero.on{opacity:.42}
 .sky{position:fixed;inset:0;z-index:-4;pointer-events:none;background:
   radial-gradient(ellipse at 50% 118%,rgba(232,195,106,.22),transparent 42%),
   radial-gradient(ellipse at 18% 8%,rgba(46,196,182,.16),transparent 36%),
-  radial-gradient(ellipse at 82% 18%,rgba(232,195,106,.08),transparent 40%),
-  linear-gradient(180deg,#0b1a24 0%,#07141c 55%,#05090c 100%)}
+  linear-gradient(180deg,#0b1a24 0%,#07141c 58%,#05090c 100%)}
 .stars{position:fixed;inset:0;z-index:-3;pointer-events:none;background-image:
   radial-gradient(1px 1px at 12% 18%,rgba(255,246,232,.8),transparent),
   radial-gradient(1px 1px at 28% 42%,rgba(255,246,232,.55),transparent),
   radial-gradient(1.5px 1.5px at 46% 12%,rgba(255,246,232,.9),transparent),
   radial-gradient(1px 1px at 68% 28%,rgba(255,246,232,.5),transparent),
   radial-gradient(1px 1px at 84% 16%,rgba(255,246,232,.7),transparent),
-  radial-gradient(1.5px 1.5px at 74% 58%,rgba(255,246,232,.45),transparent),
-  radial-gradient(1px 1px at 18% 72%,rgba(255,246,232,.4),transparent),
-  radial-gradient(1px 1px at 92% 78%,rgba(255,246,232,.35),transparent);
+  radial-gradient(1px 1px at 74% 58%,rgba(255,246,232,.45),transparent);
   animation:twinkle 8s ease-in-out infinite alternate}
-.wash{position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(180deg,rgba(7,20,28,.12),rgba(7,20,28,.72))}
+.wash{position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(180deg,rgba(7,20,28,.08),rgba(7,20,28,.7))}
 @keyframes twinkle{from{opacity:.55}to{opacity:1}}
-h1{font-weight:300;letter-spacing:.28em;font-size:1.05rem;margin:18px 0 8px;color:#e8c36a;text-transform:uppercase}
-.tag{font-size:.78rem;color:rgba(243,234,216,.7);margin-bottom:18px}
-#play{width:84px;height:84px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f0d78a,#d4af37 46%,#1a7f78);color:#07141c;font-weight:600;margin:4px 0 10px;box-shadow:0 0 36px rgba(232,195,106,.28)}
+.cover{flex:0 0 auto;width:100%;max-width:420px}
+h1{font-weight:300;letter-spacing:.26em;font-size:.92rem;margin:2px 0 2px;color:#e8c36a;text-transform:uppercase}
+.tag{font-size:.68rem;color:rgba(243,234,216,.62);margin-bottom:6px}
+#play{width:68px;height:68px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f0d78a,#d4af37 46%,#1a7f78);color:#07141c;font-weight:600;margin:2px 0 4px;box-shadow:0 0 28px rgba(232,195,106,.26)}
 #play:active{transform:scale(.96)}
-#clock{font-variant-numeric:tabular-nums;font-size:1rem;color:#f3ead8;min-height:1.3em;margin-bottom:18px}
-.panel{width:min(400px,94vw);background:rgba(7,20,28,.62);border:1px solid rgba(232,195,106,.22);border-radius:20px;padding:14px 12px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
-button,.filelab{background:rgba(7,20,28,.45);border:1px solid rgba(232,195,106,.28);color:#f3ead8;padding:10px 12px;border-radius:28px;font-size:.8rem;min-height:40px}
+#clock{font-variant-numeric:tabular-nums;font-size:.86rem;color:#f3ead8;min-height:1.1em;margin-bottom:8px}
+.panel{flex:1 1 auto;min-height:0;width:min(420px,100%);overflow-y:auto;-webkit-overflow-scrolling:touch;background:rgba(7,20,28,.62);border:1px solid rgba(232,195,106,.22);border-radius:16px;padding:10px 10px 12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px}
+button,.filelab{background:rgba(7,20,28,.45);border:1px solid rgba(232,195,106,.28);color:#f3ead8;padding:7px 10px;border-radius:22px;font-size:.72rem;min-height:36px}
 button.on{background:linear-gradient(135deg,rgba(240,215,138,.92),rgba(46,196,182,.55));color:#07141c;font-weight:600}
 .filelab{display:none}
-.more{margin-top:10px;font-size:.7rem;color:rgba(243,234,216,.45);text-decoration:underline;background:none;border:0;padding:6px;min-height:0}
-.vol{width:100%;text-align:left;font-size:.72rem;color:rgba(243,234,216,.7);margin:6px 0}
+.more{margin-top:6px;font-size:.66rem;color:rgba(243,234,216,.45);text-decoration:underline;background:none;border:0;padding:4px;min-height:0}
+.vol{width:100%;text-align:left;font-size:.68rem;color:rgba(243,234,216,.7);margin:4px 0}
 input[type=range]{width:100%;accent-color:#d4af37}
-#status{margin-top:10px;font-size:.8rem;color:rgba(243,234,216,.75);min-height:1.2em}
-.note{opacity:.4;font-size:.68rem;max-width:320px;margin-top:14px}
+#status{margin-top:6px;font-size:.72rem;color:rgba(243,234,216,.75)}
+#boost{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -51,23 +49,25 @@ input[type=range]{width:100%;accent-color:#d4af37}
 <div class="sky"></div>
 <div class="stars"></div>
 <div class="wash"></div>
+<div class="cover">
 <h1>SomniTwo</h1>
-<p class="tag">Night cover \u00b7 headphones on</p>
+<p class="tag">Headphones on</p>
 <button id="play" type="button" aria-label="Play">Play</button>
 <p id="clock">Tap Play</p>
+</div>
 <div class="panel">
 <div class="row" id="modes"></div>
 <div class="row">
 <button class="n on" data-s="none" type="button">None</button>
 <button class="n" data-s="ocean" type="button">Ocean</button>
 <button class="n" data-s="rain" type="button">Rain</button>
-<button class="n" data-s="storm" type="button">Rainstorm</button>
+<button class="n" data-s="storm" type="button">Storm</button>
 </div>
 <div class="row">
-<button class="t on" data-m="0" type="button">Timer off</button>
-<button class="t" data-m="15" type="button">15 min</button>
-<button class="t" data-m="30" type="button">30 min</button>
-<button class="t" data-m="60" type="button">60 min</button>
+<button class="t on" data-m="0" type="button">Off</button>
+<button class="t" data-m="15" type="button">15</button>
+<button class="t" data-m="30" type="button">30</button>
+<button class="t" data-m="60" type="button">60</button>
 </div>
 <button id="boost" type="button" class="on">Hearing boost on</button>
 <div class="vol">Master <input id="mv" type="range" min="0" max="150" value="100"></div>
@@ -80,7 +80,6 @@ input[type=range]{width:100%;accent-color:#d4af37}
 </label>
 <div id="status">Calm / Sleep ready.</div>
 </div>
-<p class="note">Dark night cover. Sound is still the studio mix.</p>
 <script>
 const MODES=[{name:'Deep Sleep',freq:2},{name:'Calm / Sleep',freq:4},{name:'Relax',freq:6},{name:'De-stress',freq:10},{name:'Focus',freq:15}];
 let ctx,leftOsc,rightOsc,bG,mG,nG,xG,boostG,comp,playing=false,mode=MODES[1],nature='none',musicNodes=[],natureNodes=[],boostOn=true,endsAt=null,timerMin=0;
@@ -96,7 +95,7 @@ document.getElementById('heroFile').addEventListener('change',e=>{
   hero.classList.add('on');
   hero.play().catch(()=>{});
 });
-MODES.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML=m.name+'<br>'+m.freq+' Hz';if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' \u00b7 '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
+MODES.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.textContent=m.name.split(' / ')[0]+' '+m.freq;if(i===1)b.classList.add('on');b.onclick=()=>{document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=m;status.textContent=m.name+' · '+m.freq+' Hz';if(playing)startBin()};box.appendChild(b)});
 document.querySelectorAll('.n').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.n').forEach(x=>x.classList.remove('on'));b.classList.add('on');nature=b.dataset.s;if(playing)startNat()}});
 document.querySelectorAll('.t').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.t').forEach(x=>x.classList.remove('on'));b.classList.add('on');timerMin=Number(b.dataset.m);if(playing)endsAt=timerMin?Date.now()+timerMin*60000:null;tick()}});
 function init(){
@@ -118,14 +117,14 @@ function noise(){const buf=ctx.createBuffer(2,ctx.sampleRate*2,ctx.sampleRate);f
 function startNat(){stopList(natureNodes);natureNodes=[];if(nature==='none')return;const s=noise(),f=ctx.createBiquadFilter();if(nature==='ocean'){f.type='lowpass';f.frequency.value=420;const g=ctx.createGain();g.gain.value=.9;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else if(nature==='rain'){f.type='highpass';f.frequency.value=1800;const g=ctx.createGain();g.gain.value=.7;s.connect(f).connect(g).connect(nG);s.start();natureNodes.push(s,f,g)}else{f.type='bandpass';f.frequency.value=2200;const g=ctx.createGain();g.gain.value=.65;s.connect(f).connect(g).connect(nG);const r=noise(),rf=ctx.createBiquadFilter();rf.type='lowpass';rf.frequency.value=140;const rg=ctx.createGain();rg.gain.value=.8;r.connect(rf).connect(rg).connect(nG);s.start();r.start();natureNodes.push(s,f,g,r,rf,rg)}}
 function startMus(){stopList(musicNodes);musicNodes=[];[130.81,164.81,196,246.94].forEach((fq,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=fq;const g=ctx.createGain();g.gain.value=.16;const l=ctx.createOscillator();l.frequency.value=.04+i*.015;const lg=ctx.createGain();lg.gain.value=.08;l.connect(lg).connect(g.gain);o.connect(g).connect(mG);o.start();l.start();musicNodes.push(o,l,g,lg)})}
 function fmt(sec){const m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
-function tick(){if(!playing){clock.textContent='Tap Play';return}if(endsAt){const left=Math.max(0,Math.ceil((endsAt-Date.now())/1000));clock.textContent=fmt(left);if(left<=0){stopAll();playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');endsAt=null;status.textContent=mode.name+' \u00b7 paused';clock.textContent='Tap Play'}}else clock.textContent='\u221e'}
+function tick(){if(!playing){clock.textContent='Tap Play';return}if(endsAt){const left=Math.max(0,Math.ceil((endsAt-Date.now())/1000));clock.textContent=fmt(left);if(left<=0){stopAll();playing=false;playBtn.textContent='Play';playBtn.classList.remove('on');endsAt=null;status.textContent=mode.name+' · paused';clock.textContent='Tap Play'}}else clock.textContent='∞'}
 function armPlay(){
   hero.play().catch(()=>{});
   try{
     init();
     if(ctx.state==='suspended')ctx.resume().catch(()=>{});
-    if(playing){stopAll();playing=false;endsAt=null;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' \u00b7 paused'}
-    else{startBin();startMus();startNat();playing=true;endsAt=timerMin?Date.now()+timerMin*60000:null;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' \u00b7 '+mode.freq+' Hz playing'}
+    if(playing){stopAll();playing=false;endsAt=null;playBtn.textContent='Play';playBtn.classList.remove('on');status.textContent=mode.name+' · paused'}
+    else{startBin();startMus();startNat();playing=true;endsAt=timerMin?Date.now()+timerMin*60000:null;playBtn.textContent='Stop';playBtn.classList.add('on');status.textContent=mode.name+' · '+mode.freq+' Hz playing'}
     tick();
   }catch(e){status.textContent='Tap Play once more to unlock sound'}
 }
